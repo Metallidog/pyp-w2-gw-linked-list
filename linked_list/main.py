@@ -51,10 +51,10 @@ class Node(object):
         return str(self.elem)
 
     def __eq__(self, other):
-        return True if self.elem == other.elem else False
-
+        return self.elem == other.elem
+        
     def __repr__(self):
-        pass
+        return str(self.elem)
 
 
 class LinkedList(AbstractLinkedList):
@@ -71,40 +71,57 @@ class LinkedList(AbstractLinkedList):
                 place_holder.next = current_node
                 place_holder = current_node
             self.end = Node(elements[-1])
+        
         else:
             self.start = None
             self.end = None
-                
-    def __str__(self):
-        pass
 
+            
+    def __str__(self):
+        str_list = [None] * self.count()
+        place_holder = self.start
+        index = 0
+        while place_holder is not None:
+            str_list[index] = place_holder
+            index += 1
+            place_holder = place_holder.next
+        return str(str_list)
+        
     def __len__(self):
         return self.count()
-
+    
     def __iter__(self):
         counter_node = self.start
         while counter_node:
-            yield counter_node
+            yield counter_node.elem
             counter_node = counter_node.next
 
     def __getitem__(self, index):
-        counter = 0
-        for node in self:
-            if counter == index:
-                return node
-            counter += 1
+        if index >= self.count():
+            raise IndexError
             
-    def _dd__(self, other):
-        pass
+        place = self.start
+        place = [place.next for place in xrange(index - 1)]
+        return place[-1]
 
+    def __add__(self, other):
+        other_node = other.start
+        while other_node:
+            self.end = other_node
+            self.end = self.end.next 
+            other_node = other_node.next
+        return self     
+        
     def __iadd__(self, other):
-        pass
+        return self + other
 
     def __eq__(self, other):
         other_node = other.start
-        for item in self:
-            if item == other_node:
+        self_node = self.start
+        while self_node is not None:
+            if self_node == other_node:
                 other_node = other_node.next
+                self_node = self_node.next
             else:
                 return False
         return True
@@ -117,43 +134,38 @@ class LinkedList(AbstractLinkedList):
         else:
             self.start = new_end
             self.end = new_end
+        return self
 
     def count(self):
-        counter = 0
-        for item in self:
-            counter +=1
-        return counter
+        count = 0
+        dummy = self.start
+        while dummy is not None:
+            count += 1
+            dummy = dummy.next
+        return count
 
     def pop(self, index=None):
-        if index is None:
-            index = self.count()-1
-            
-        if len(self) == 0 or index >= self.count():
+        before = self.start
+        
+        if index >= self.count() or self.start is None:
             raise IndexError()
             
         if index == 0:
             dummy = self.start.elem
             self.start = self.start.next
             return dummy
+            
+        if index == None:
+            index = self.count()-1
         
-        if self[index].next:    
-            node = self[index-1]
-            node.next = self[index].next
-            return self[index].elem
+        for i in xrange(index-1):
+            before = before.next
+            
+        if before.next:    
+            remove = before.next
+            before.next = remove.next
+            return remove.elem
         else:
-            elem = self.start.elem
             self.start = None
-            self.end = None
-            return elem
-            
-        # for i in xrange(index-1):
-        #     before = before.next
-            
-        # if before.next:    
-        #     remove = before.next
-        #     before.next = remove.next
-        #     return remove.elem
-        # else:
-        #     self.start = None
-        #     return before.elem        
+            return before.elem        
             
