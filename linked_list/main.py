@@ -53,8 +53,7 @@ class Node(object):
     def __eq__(self, other):
         return self.elem == other.elem
         
-    def __repr__(self):
-        return str(self.elem)
+    repr = str
 
 
 class LinkedList(AbstractLinkedList):
@@ -64,29 +63,27 @@ class LinkedList(AbstractLinkedList):
 
     def __init__(self, elements=None):
         if elements:
-            self.start = Node(elements[0])
-            place_holder = self.start
+            elements = list(elements)
+            self.length = len(elements)
+            self.end = self.start = Node(elements[0])
             for elem in elements[1:]:
                 current_node = Node(elem)
-                place_holder.next = current_node
-                place_holder = current_node
-            self.end = Node(elements[-1])
-        
+                self.end.next = current_node
+                self.end  = current_node
         else:
             self.start = None
             self.end = None
-
+            self.length = 0
             
     def __str__(self):
-        str_list = [None] * self.count()
-        place_holder = self.start
-        index = 0
-        while place_holder is not None:
-            str_list[index] = place_holder
-            index += 1
-            place_holder = place_holder.next
-        return str(str_list)
+        LL_str = '['
+        for index, node in enumerate(self, start=1):
+            end = ']' if index == self.length else ', '
+            LL_str += "{}{}".format(node, end)
+        return LL_str if LL_str[-1]==']' else LL_str + ']' 
         
+    __repr__ = __str__
+    
     def __len__(self):
         return self.count()
     
@@ -97,15 +94,21 @@ class LinkedList(AbstractLinkedList):
             counter_node = counter_node.next
 
     def __getitem__(self, index):
-        if index >= self.count():
-            raise IndexError
+        if index >= self.length or index < -self.length:
+            raise IndexError('LinkedList index out of range')
+            
+        if isinstance(index, int) is False:
+            raise TypeError('LinkedList indices must be integers')
             
         place = self.start
-        place = [place.next for place in xrange(index - 1)]
-        return place[-1]
+        loop_range = index if index >= 0 else index+self.length
+        for _ in range(loop_range):
+            place = place.next
+        return place.elem
 
     def __add__(self, other):
         other_node = other.start
+        self.length += len(other)
         while other_node:
             self.end = other_node
             self.end = self.end.next 
@@ -128,6 +131,7 @@ class LinkedList(AbstractLinkedList):
 
     def append(self, elem):
         new_end = Node(elem)
+        self.length += 1
         if self.end:
             self.end.next = new_end
             self.end = new_end
@@ -143,29 +147,33 @@ class LinkedList(AbstractLinkedList):
             count += 1
             dummy = dummy.next
         return count
-
+        #return self.length
+    
     def pop(self, index=None):
         before = self.start
-        
-        if index >= self.count() or self.start is None:
+ 
+        if index == None:
+            index = self.length-1
+            
+        if index >= self.length or self.start is None:
             raise IndexError()
             
         if index == 0:
-            dummy = self.start.elem
+            temp = self.__getitem__(0)
             self.start = self.start.next
-            return dummy
-            
-        if index == None:
-            index = self.count()-1
+            self.length -= 1
+            return temp
         
-        for i in xrange(index-1):
+        for _ in xrange(index-1):
             before = before.next
-            
-        if before.next:    
+        
+        if self.length > 1:
             remove = before.next
             before.next = remove.next
+            self.length -= 1
             return remove.elem
         else:
             self.start = None
+            self.length -= 1
             return before.elem        
             

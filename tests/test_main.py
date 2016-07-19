@@ -135,7 +135,9 @@ class LinkedListTestCase(unittest.TestCase):
     def test_add_list(self):
         my_list = LinkedList()
         new_list = my_list + LinkedList([1])
+        #print ('first assert')
         self.assertEqual(new_list, LinkedList([1]))
+        #print ('second assert')
         self.assertEqual(my_list, LinkedList())
 
         my_list = LinkedList([1, 2])
@@ -182,3 +184,16 @@ class LinkedListTestCase(unittest.TestCase):
         my_list += LinkedList()
         self.assertEqual(my_list.count(), 0)
         self.assertEqual(my_list, LinkedList())
+        
+    def test_index_works(self):
+        my_list = LinkedList(['1', '2', 3, 4, True, 4.5, (4,2,1)])
+        item_in_list = my_list[2]
+        self.assertEqual(item_in_list, 3)
+        with self.assertRaises(IndexError):
+            my_list[7]
+            
+    def test_negative_index(self):
+        my_list = LinkedList(['1', '2', 3, 4, True, 4.5, (4,2,1)])
+        item_in_list = my_list[-1]
+        self.assertEqual(item_in_list, (4,2,1))
+        
